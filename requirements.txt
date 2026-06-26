@@ -1,15 +1,4 @@
-# Web framework
 fastapi==0.115.0
-uvicorn[standard]==0.32.0
-
-# Data validation - critical for the API Contract & Schema score (15 pts)
+uvicorn[standard]==0.30.6
 pydantic==2.9.2
-
-# HTTP client for tests + (optional) external AI API calls
-httpx==0.28.1
-
-# Test framework
-pytest==9.1.1
-
-# Optional: lightweight local model support (no GPU). Uncomment if needed.
-# sentence-transformers==3.2.1
+httpx==0.27.2
