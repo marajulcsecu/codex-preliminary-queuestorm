@@ -17,7 +17,7 @@ built during the round and committed incrementally.
 ## Status (live updates)
 
 - [x] Phase 0 — project bootstrap (`/health`, `/analyze-ticket` reachable)
-- [ ] Phase 1 — Pydantic v2 schema layer
+- [x] Phase 1 — Pydantic v2 schema layer (literal enums pinned, 11/11 schema tests pass)
 - [ ] Phase 2 — evidence matcher (5-signal scorer)
 - [ ] Phase 3 — case-type classifier + department router
 - [ ] Phase 4 — safety scanner (negation-aware)
