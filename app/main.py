@@ -45,6 +45,11 @@ from fastapi.responses import JSONResponse
 # Local models — the API contract lives in `app.models`.
 from app.models import AnalyzeRequest, AnalyzeResponse
 
+# Reasoning orchestrator — wires evidence + classifier + routing + i18n
+# + safety into a single response. Phase 5 replaces the Phase 0/1
+# placeholder with the real pipeline.
+from app.reasoning import investigate
+
 # -----------------------------------------------------------------------------
 # Configuration
 # -----------------------------------------------------------------------------
@@ -153,12 +158,10 @@ async def health() -> Dict[str, str]:
 # -----------------------------------------------------------------------------
 # POST /analyze-ticket — main analysis endpoint.
 #
-# Phase 0 (this file): returns a safe, schema-valid placeholder so the endpoint
-# is reachable end-to-end and the deploy story works. The full reasoning
-# pipeline lands in Phase 5 via app.reasoning.investigate().
-#
-# Until then, every request returns the same canned response — but with the
-# ticket_id echoed from the input, so the judge harness sees the contract work.
+# Phase 5: the handler delegates to ``app.reasoning.investigate`` which
+# runs the full pipeline (pre-scan → evidence → classifier → routing →
+# i18n → post-scan). Pydantic auto-validates the request and response
+# shapes.
 # -----------------------------------------------------------------------------
 @app.post("/analyze-ticket", tags=["analysis"], response_model=AnalyzeResponse)
 async def analyze_ticket(payload: AnalyzeRequest) -> AnalyzeResponse:
@@ -172,34 +175,11 @@ async def analyze_ticket(payload: AnalyzeRequest) -> AnalyzeResponse:
     Response is validated by Pydantic (`AnalyzeResponse`) automatically —
     any unexpected field in our return value is rejected before serialization.
 
-    Full reasoning pipeline lands in Phase 5 via `app.reasoning.investigate()`.
-    Until then, every request returns the same canned safe response — but
-    with `ticket_id` echoed from the input.
+    The full pipeline (pre-scan → evidence → classifier → routing → i18n
+    → post-scan) lives in :mod:`app.reasoning` and never raises on a
+    well-formed request.
     """
-    # Placeholder response. Replace with reasoning.investigate(payload) in Phase 5.
-    return AnalyzeResponse(
-        ticket_id=payload.ticket_id,
-        relevant_transaction_id=None,
-        evidence_verdict="insufficient_data",
-        case_type="other",
-        severity="low",
-        department="customer_support",
-        agent_summary=(
-            "Phase 1 placeholder. The Pydantic schema is live and the response "
-            "shape is enforced; the reasoning pipeline lands in Phase 5."
-        ),
-        recommended_next_action=(
-            "Verify ticket_id and resubmit once the reasoning pipeline is online."
-        ),
-        customer_reply=(
-            "Thank you for reaching out. Our support team is reviewing your case "
-            "and will contact you through official support channels. Please do not "
-            "share your PIN or OTP with anyone."
-        ),
-        human_review_required=True,
-        confidence=0.0,
-        reason_codes=["phase1_schema_only"],
-    )
+    return investigate(payload)
 
 
 # -----------------------------------------------------------------------------
