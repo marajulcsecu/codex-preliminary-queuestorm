@@ -66,8 +66,17 @@ def _compare(
 
 
 def main(argv: List[str]) -> int:
-    port = int(argv[1]) if len(argv) > 1 else 8000
-    base = BASE_URL.format(port=port)
+    """CLI: python scripts/run_samples.py [PORT|URL]
+
+    Accepts either an integer port (talks to 127.0.0.1) or a full URL
+    starting with http(s):// (e.g. the Railway public endpoint).
+    """
+    raw = argv[1] if len(argv) > 1 else "8000"
+    if raw.startswith("http://") or raw.startswith("https://"):
+        base = raw.rstrip("/")
+    else:
+        port = int(raw)
+        base = BASE_URL.format(port=port)
     cases = _load_cases()
 
     # Sanity: server is reachable.
