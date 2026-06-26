@@ -1,0 +1,24 @@
+=== Production smoke verification ===
+Date: 2026-06-26T15:56:52Z
+Target: https://codex-preliminary-api-production.up.railway.app
+
+--- 1. /health ---
+{"status":"ok"}
+HTTP 200 in 0.520973s
+
+--- 2. /analyze-ticket minimal ---
+{"ticket_id":"SMOKE-1","relevant_transaction_id":null,"evidence_verdict":"insufficient_data","case_type":"other","severity":"low","department":"customer_support","agent_summary":"Customer reported a concern but provided insufficient detail to identify a specific transaction or case type. Needs clarification.","recommended_next_action":"Reply to customer asking for specific details: which transaction, what amount, what went wrong, and approximate time.","customer_reply":"Thank you for reaching out. To help you faster, please share the transaction ID, the amount involved, and a short description of what went wrong. Please do not share your PIN or OTP with anyone.","human_review_required":false,"confidence":0.3,"reason_codes":["unmatched"]}
+HTTP 200 in 0.529123s
+
+--- 3. /analyze-ticket SAMPLE-01 ---
+{"ticket_id":"SMOKE-S01","relevant_transaction_id":"TXN-9101","evidence_verdict":"consistent","case_type":"wrong_transfer","severity":"high","department":"dispute_resolution","agent_summary":"Customer reports an issue with transaction TXN-9101 that may have been sent to the wrong recipient. The case has been flagged for the dispute team.","recommended_next_action":"Verify TXN-9101 with the customer and initiate the wrong-transfer dispute workflow per policy.","customer_reply":"We have noted your concern about transaction TXN-9101. Our dispute team will review the case and contact you through official support channels. Please do not share your PIN or OTP with anyone.","human_review_required":true,"confidence":0.8,"reason_codes":["wrong_transfer","transaction_match","dispute_initiated"]}
+HTTP 200 in 0.546703s
+
+--- 4. /analyze-ticket Bangla ---
+{"ticket_id":"SMOKE-BN","relevant_transaction_id":null,"evidence_verdict":"insufficient_data","case_type":"other","severity":"low","department":"customer_support","agent_summary":"গ্রাহক একটি উদ্বেগ জানিয়েছেন কিন্তু নির্দিষ্ট লেনদেন বা কেস টাইপ চিহ্নিত করার জন্য অপর্যাপ্ত বিবরণ দিয়েছেন।","recommended_next_action":"গ্রাহককে নির্দিষ্ট বিবরণ জানতে বলুন: কোন লেনদেন, কত পরিমাণ, কী ভুল হয়েছে, এবং আনুমানিক সময়।","customer_reply":"আপনার বার্তার জন্য ধন্যবাদ। দ্রুত সাহায্য করার জন্য, অনুগ্রহ করে লেনদেনের আইডি, পরিমাণ এবং কী ভুল হয়েছে তার সংক্ষিপ্ত বিবরণ জানান। অনুগ্রহ করে কারো সাথে আপনার পিন বা ওটিপি শেয়ার করবেন না।","human_review_required":false,"confidence":0.3,"reason_codes":["unmatched"]}
+HTTP 200 in 0.526887s
+
+--- 5. /analyze-ticket missing ticket_id (expect 400) ---
+{"error":"invalid_request_or_missing_field","message":"Request body is malformed or missing required fields.","ticket_id":null,"field":"ticket_id"}
+HTTP 400 in 0.540816s
+
