@@ -1,0 +1,67 @@
+# --------------------------------------------------------------------------
+# QueueStorm Investigator — .gitignore
+#
+# Goal: never accidentally commit secrets, virtualenvs, build artifacts,
+# or local IDE settings. This file is intentionally conservative.
+# --------------------------------------------------------------------------
+
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.pyc_cache/
+
+# --- Environment & secrets (CRITICAL) ------------------------------------
+# .env holds real secrets — NEVER commit.
+.env
+.env.local
+.env.*.local
+
+# .env.example holds only variable names — keep it tracked.
+
+# --- Tests / coverage -----------------------------------------------------
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+.cache
+
+# --- IDE & editor ---------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS -------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs -----------------------------------------------------------------
+*.log
+logs/
+
+# --- Local artifacts ------------------------------------------------------
+# Local benchmark outputs and smoke-test artifacts (kept out of git by default).
+/tmp/
+/artifacts/
+*.local.json
+
+# --- Docker (optional) ----------------------------------------------------
+# Uncomment if you do not want to track Docker volumes locally.
+# /volumes/
