@@ -65,3 +65,17 @@ logs/
 # --- Docker (optional) ----------------------------------------------------
 # Uncomment if you do not want to track Docker volumes locally.
 # /volumes/
+
+# --- Internal planning docs (NEVER public) -------------------------------
+# These contain internal strategy, pre-filled form answers, the build
+# roadmap, and the video narration. They are not for public review.
+# They live on disk for the team + AI agents, but never on GitHub.
+#
+# AGENT.md                          — context handoff for AI coding agents
+# docs/ROADMAP.md                   — internal step-by-step implementation plan
+# docs/SUBMISSION_ANSWERS.md        — pre-filled Google Form answers
+# docs/VIDEO_SCRIPT.md              — 90-second narration script
+/AGENT.md
+/docs/ROADMAP.md
+/docs/SUBMISSION_ANSWERS.md
+/docs/VIDEO_SCRIPT.md
