@@ -11,12 +11,12 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any
+from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 import analyzer
 
@@ -31,23 +31,48 @@ app = FastAPI(title="QueueStorm Investigator", version="1.0.0")
 # ---------------------------------------------------------------------------
 
 class TransactionEntry(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     transaction_id: str | None = None
     timestamp: str | None = None
-    type: str | None = None
+    type: Literal["transfer", "payment", "cash_in", "cash_out", "settlement", "refund"] | None = None
     amount: float | None = None
     counterparty: str | None = None
-    status: str | None = None
+    status: Literal["completed", "failed", "pending", "reversed"] | None = None
+
+    @field_validator("transaction_id", "timestamp", "type", "counterparty", "status", mode="before")
+    @classmethod
+    def _blank_string_to_none(cls, value: Any) -> Any:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
+
+    @field_validator("amount")
+    @classmethod
+    def _amount_non_negative(cls, value: float | None) -> float | None:
+        if value is not None and value < 0:
+            raise ValueError("amount must be non-negative")
+        return value
 
 
 class AnalyzeRequest(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     ticket_id: str = Field(..., min_length=1)
     complaint: str = Field(..., min_length=1)
-    language: str | None = None
-    channel: str | None = None
-    user_type: str | None = None
+    language: Literal["en", "bn", "mixed"] | None = None
+    channel: Literal["in_app_chat", "call_center", "email", "merchant_portal", "field_agent"] | None = None
+    user_type: Literal["customer", "merchant", "agent", "unknown"] | None = None
     campaign_context: str | None = None
     transaction_history: list[TransactionEntry] | None = None
     metadata: dict[str, Any] | None = None
+
+    @field_validator("ticket_id", "complaint")
+    @classmethod
+    def _required_text(cls, value: str) -> str:
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("field must be a non-empty string")
+        return value.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -88,7 +113,7 @@ async def analyze_ticket(req: Request) -> JSONResponse:
     # Validate via Pydantic for shape / types
     try:
         parsed = AnalyzeRequest(**raw)
-    except RequestValidationError as e:
+    except (RequestValidationError, ValidationError) as e:
         return JSONResponse(
             status_code=400,
             content={"error": "schema_validation_failed", "details": e.errors(),

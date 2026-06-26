@@ -7,3 +7,4 @@ _extracted
 __pycache__
 _extract.py
 JOB_CONTEXT.md
+*.jsonl
